@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <shellapi.h>
-#include "commoncontrols.h"
+#include <commoncontrols.h>
 
 #include <QFileIconProvider>
 #include <QtWinExtras/QtWinExtras>
@@ -49,9 +49,12 @@ static QIcon iconFromExtension_(QString const &ext, UINT flag)
 	QString name = "*." + ext;
 	SHFILEINFOW shinfo;
 	if (SHGetFileInfoW((wchar_t const *)name.utf16(), 0, &shinfo, sizeof(shinfo), flag | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES) != 0) {
-		QPixmap pm = QtWin::fromHICON(shinfo.hIcon);
-		if (!pm.isNull()) {
-			icon = QIcon(pm);
+		if (shinfo.hIcon) {
+			QPixmap pm = QtWin::fromHICON(shinfo.hIcon);
+			if (!pm.isNull()) {
+				icon = QIcon(pm);
+			}
+			DestroyIcon(shinfo.hIcon);
 		}
 	}
 	return icon;
